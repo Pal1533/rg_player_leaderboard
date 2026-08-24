@@ -166,8 +166,14 @@ export function normalizePlayerDocument(raw, expectedPlaylist) {
     // streak chip can render on 1v1/2v2/3v3 tabs. Pre-17.2 docs won't have
     // this field; the chip just stays hidden for those rows.
     const streak = finiteNumber(raw?.currentStreak);
+    // Raw Glicko rating + rd survive normalization so the admin rank-metric
+    // toggle can re-sort by "rating" instead of "mmr" without a second read.
+    const rating = finiteNumber(raw?.rating);
+    const rd = finiteNumber(raw?.rd);
     score = {
       mmr,
+      rating,
+      rd,
       sessionMmrDelta: delta == null ? null : Math.trunc(delta),
       sessionStartedAt: startedAt == null ? null : Math.trunc(startedAt),
       sessionLastSeen: lastSeen == null ? null : Math.trunc(lastSeen),
