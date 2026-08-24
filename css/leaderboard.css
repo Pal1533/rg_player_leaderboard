@@ -123,6 +123,83 @@ h1{
 .share-btn:active{transform:scale(.94)}
 .share-btn:focus-visible{outline:2px solid var(--grad-a);outline-offset:2px}
 
+/* Rank-metric toggle — admin-only pill that swaps the ranked-tab sort
+   between career MMR and raw Glicko rating. Sits just left of the
+   share button. Rating mode = gradient glow + slow pulse so it's
+   obvious you're in the "power user" view. */
+.controls .rank-metric-btn{
+  position:absolute;right:50px;top:50%;transform:translateY(-50%);
+  display:inline-flex;align-items:center;gap:7px;
+  height:32px;padding:0 12px 0 10px;border-radius:999px;
+  background:rgba(12,18,48,.72);border:1px solid var(--line);
+  color:var(--ink-dim);font-family:var(--display);font-weight:700;
+  font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+  cursor:pointer;overflow:hidden;
+  transition:color .22s ease,border-color .22s ease,
+             background .22s ease,box-shadow .32s ease,
+             transform .1s ease;
+}
+.rank-metric-btn[hidden]{display:none}
+.rank-metric-btn:hover{color:var(--ink);border-color:var(--line-strong)}
+.rank-metric-btn:active{transform:translateY(-50%) scale(.95)}
+.rank-metric-btn:focus-visible{outline:2px solid var(--grad-a);outline-offset:2px}
+.rmb-dot{
+  width:8px;height:8px;border-radius:999px;background:var(--ink-dim);
+  box-shadow:0 0 0 0 rgba(168,120,255,0);
+  transition:background .22s ease,box-shadow .32s ease;
+}
+.rmb-label{position:relative;z-index:1}
+
+/* MMR mode = quiet neutral. Rating mode = animated gradient border
+   + slow-breathing glow so the "raw skill" view feels alive. */
+.rank-metric-btn[data-metric="rating"]{
+  color:var(--ink);border-color:transparent;
+  background:
+    linear-gradient(rgba(12,18,48,.9),rgba(12,18,48,.9)) padding-box,
+    linear-gradient(93deg,var(--grad-a),var(--grad-b),var(--gold),var(--grad-a)) border-box;
+  background-size:100% 100%, 300% 100%;
+  animation:rmb-shift 6s linear infinite;
+  box-shadow:0 0 22px -6px rgba(168,120,255,.55),
+             0 0 8px -2px rgba(228,75,224,.35);
+}
+.rank-metric-btn[data-metric="rating"] .rmb-dot{
+  background:var(--grad-b);
+  box-shadow:0 0 10px 1px rgba(228,75,224,.85);
+  animation:rmb-pulse 1.8s ease-in-out infinite;
+}
+
+/* Click ripple — pseudo-element sweeps across the pill on toggle.
+   Retriggered by removing/adding the class in JS on transition, but
+   also fires on :active for immediate feedback. */
+.rank-metric-btn::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(93deg,transparent 0%,
+             rgba(255,255,255,.14) 50%,transparent 100%);
+  transform:translateX(-100%);opacity:0;pointer-events:none;
+}
+.rank-metric-btn:active::after{
+  animation:rmb-sweep .5s ease-out;
+}
+
+@keyframes rmb-shift{
+  0%{background-position:0% 0%, 0% 0%}
+  100%{background-position:0% 0%, 300% 0%}
+}
+@keyframes rmb-pulse{
+  0%,100%{transform:scale(1);opacity:.9}
+  50%{transform:scale(1.35);opacity:1}
+}
+@keyframes rmb-sweep{
+  0%{transform:translateX(-100%);opacity:0}
+  30%{opacity:1}
+  100%{transform:translateX(100%);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .rank-metric-btn[data-metric="rating"]{animation:none}
+  .rank-metric-btn[data-metric="rating"] .rmb-dot{animation:none}
+  .rank-metric-btn:active::after{animation:none}
+}
+
 /* ---------- Board ---------- */
 .board{
   background:linear-gradient(180deg,rgba(19,27,68,.72),rgba(12,18,48,.86));

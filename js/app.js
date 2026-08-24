@@ -1143,8 +1143,11 @@ function wireEvents() {
 
   const rankToggle = $("rankMetricToggle");
   if (rankToggle) {
+    const rankLabel = rankToggle.querySelector(".rmb-label");
     const paintRankToggle = () => {
-      rankToggle.textContent = state.rankMetric === "rating" ? "Rating" : "MMR";
+      const mode = state.rankMetric === "rating" ? "rating" : "mmr";
+      rankToggle.dataset.metric = mode;
+      if (rankLabel) rankLabel.textContent = mode === "rating" ? "Rating" : "MMR";
     };
     paintRankToggle();
     rankToggle.addEventListener("click", () => {
