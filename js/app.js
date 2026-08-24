@@ -160,6 +160,26 @@ function shouldShowReadBudget() {
   return Boolean(READ_BUDGET_DEBUG || state.admin);
 }
 
+function isRankedPlaylistName(p) {
+  return p === "1v1" || p === "2v2" || p === "3v3";
+}
+
+// Re-sort by Glicko rating and remap mmr → rating so the render layer
+// picks it up without knowing about the toggle. Also strips obvious
+// junk rows (rating > 3000 with rd = 50 = default-value pollution).
+function rowsByRating(rows) {
+  if (!Array.isArray(rows)) return [];
+  const cleaned = rows
+    .filter((r) => typeof r?.rating === "number" && Number.isFinite(r.rating))
+    .filter((r) => !(r.rating > 3000 && r.rd === 50));
+  cleaned.sort((a, b) => b.rating - a.rating);
+  return cleaned.map((r, i) => ({
+    ...r,
+    rank: i + 1,
+    mmr: Math.round(r.rating * 10) / 10,
+  }));
+}
+
 function stopReadBudgetPoll() {
   if (readBudgetPollHandle != null) {
     clearInterval(readBudgetPollHandle);
@@ -237,6 +257,17 @@ async function loadVersionBreakdown({ force = false } = {}) {
 }
 
 const initial = parseUrlState(window.location.href);
+// Admin-only rank metric toggle. Persists across reloads. Ignored for
+// non-admin sessions — we always render by mmr when the toggle isn't
+// visible.
+const RANK_METRIC_KEY = "rg-rank-metric";
+function readRankMetric() {
+  try {
+    const v = localStorage.getItem(RANK_METRIC_KEY);
+    return v === "rating" ? "rating" : "mmr";
+  } catch { return "mmr"; }
+}
+
 const state = {
   playlist: initial.playlist,
   playerId: initial.playerId,
@@ -250,6 +281,7 @@ const state = {
   iconLoading: true,
   iconError: "",
   editingPlayer: null,
+  rankMetric: readRankMetric(),
 };
 
 let gateway = null;
@@ -376,12 +408,14 @@ function render() {
   // their containers are hidden and renderBoard doesn't know these
   // pseudo-playlists.
   if (!isAdminView) {
+    const useRating = state.admin && state.rankMetric === "rating" && isRankedPlaylistName(state.playlist);
     renderBoard({
       playlist: state.playlist,
-      rows: state.rows,
+      rows: useRating ? rowsByRating(state.rows) : state.rows,
       historyStore,
       admin: state.admin,
       emptyMessage: emptyMessage(),
+      metricLabel: useRating ? "Rating" : undefined,
       onInspect: openPlayerDetails,
       onEdit: openEdit,
       onDelete: async (player) => {
@@ -1107,6 +1141,20 @@ function wireEvents() {
     handleTabKeydown(event, (playlist) => activatePlaylist(playlist)),
   );
 
+  const rankToggle = $("rankMetricToggle");
+  if (rankToggle) {
+    const paintRankToggle = () => {
+      rankToggle.textContent = state.rankMetric === "rating" ? "Rating" : "MMR";
+    };
+    paintRankToggle();
+    rankToggle.addEventListener("click", () => {
+      state.rankMetric = state.rankMetric === "rating" ? "mmr" : "rating";
+      try { localStorage.setItem(RANK_METRIC_KEY, state.rankMetric); } catch {}
+      paintRankToggle();
+      render();
+    });
+  }
+
   $("shareView").addEventListener("click", async () => {
     try {
       const url = buildShareUrl(window.location.href, {
@@ -1470,6 +1518,8 @@ async function boot() {
       if (publishTabEl) publishTabEl.hidden = !state.admin || state.writesPaused;
       const accessTabEl = $("accessTab");
       if (accessTabEl) accessTabEl.hidden = !state.admin;
+      const rankMetricEl = $("rankMetricToggle");
+      if (rankMetricEl) rankMetricEl.hidden = !state.admin;
       if (!state.admin && isAdminViewPlaylist(state.playlist)) {
         activatePlaylist(lastRealPlaylist || "1v1", { push: false });
       }

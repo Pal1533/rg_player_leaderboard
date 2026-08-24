@@ -434,7 +434,7 @@ function adminActions(player, onEdit, onDelete) {
   return wrap;
 }
 
-export function renderBoard({ playlist, rows, historyStore, admin, emptyMessage, onInspect, onEdit, onDelete }) {
+export function renderBoard({ playlist, rows, historyStore, admin, emptyMessage, onInspect, onEdit, onDelete, metricLabel }) {
   const body = $("boardBody");
   const head = $("boardHead");
   if (!body || !head) return;
@@ -469,7 +469,7 @@ export function renderBoard({ playlist, rows, historyStore, admin, emptyMessage,
       node("span", { text: "Rank" }),
       node("span", { text: "Player" }),
       node("span", { className: "col-spacer" }),
-      node("span", { className: "num", text: "MMR" }),
+      node("span", { className: "num", text: metricLabel || "MMR" }),
       node("span", { text: "Streak" }),
       node("span", { text: "Recent" }),
     );

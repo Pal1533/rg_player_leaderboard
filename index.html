@@ -12,7 +12,7 @@
      published-state JSON on raw.githubusercontent.com. Flags and icons
      only load from inline data URIs, imgur, or Wikimedia — not Discord
      or GitHub CDNs. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://raw.githubusercontent.com https://firebasestorage.googleapis.com; script-src 'self' https://www.gstatic.com https://apis.google.com 'sha256-aiBU76FYnfnYm4B8SxIcJBfL8qh/0t2tXwhnvnh1L6A=' https://www.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://i.imgur.com https://imgur.com https://upload.wikimedia.org; object-src 'none'; base-uri 'self'; frame-src https://accounts.google.com https://rgleaderboard.firebaseapp.com https://www.google.com; form-action 'self'; connect-src 'self' https://raw.githubusercontent.com https://*.googleapis.com https://securetoken.googleapis.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://www.gstatic.com https://apis.google.com https://accounts.google.com https://www.google.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://raw.githubusercontent.com https://firebasestorage.googleapis.com; script-src 'self' https://www.gstatic.com https://apis.google.com 'sha256-2Wr+8aZ5AsfkmiW0rg6DsOe1ThqqOY69zFLXVj/e/xk=' https://www.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://i.imgur.com https://imgur.com https://upload.wikimedia.org; object-src 'none'; base-uri 'self'; frame-src https://accounts.google.com https://rgleaderboard.firebaseapp.com https://www.google.com; form-action 'self'; connect-src 'self' https://raw.githubusercontent.com https://*.googleapis.com https://securetoken.googleapis.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://www.gstatic.com https://apis.google.com https://accounts.google.com https://www.google.com;">
 <title>Rocket Goal — Competitive Rankings</title>
 <meta name="description" content="Live Rocket Goal competitive rankings for 1v1, 2v2, 3v3, and wins.">
 <meta name="theme-color" content="#0C1230">
@@ -23,15 +23,15 @@
 <meta property="og:description" content="Live Rocket Goal competitive rankings for 1v1, 2v2, 3v3, and wins.">
 <meta name="twitter:card" content="summary">
 
-<link rel="icon" type="image/png" href="assets/icon.png?v=d1daa572">
-<link rel="apple-touch-icon" href="assets/icon.png?v=d1daa572">
+<link rel="icon" type="image/png" href="assets/icon.png?v=26ca8bba">
+<link rel="apple-touch-icon" href="assets/icon.png?v=26ca8bba">
 <link rel="manifest" href="site.webmanifest">
 
 <link rel="preconnect" href="https://raw.githubusercontent.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Rajdhani:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="css/leaderboard.css?v=d1daa572">
+<link rel="stylesheet" href="css/leaderboard.css?v=26ca8bba">
 </head>
 <body>
 <div class="wrap">
@@ -62,6 +62,7 @@
       <button class="tab tab-admin" id="publishTab" role="tab" data-playlist="publish" aria-selected="false" tabindex="-1" hidden>Sync</button>
       <button class="tab tab-admin" id="accessTab" role="tab" data-playlist="access" aria-selected="false" tabindex="-1" hidden>Access</button>
     </div>
+    <button class="share-btn admin-only" id="rankMetricToggle" type="button" title="Rank by MMR (career score) or Glicko rating (raw skill). Admin only." aria-label="Toggle rank metric" hidden>MMR</button>
     <button class="share-btn" id="shareView" type="button" title="Copy shareable link" aria-label="Share view">↗</button>
   </div>
 
@@ -333,25 +334,25 @@
 <script type="importmap">
 {
   "imports": {
-    "./js/access-view.js":      "./js/access-view.js?v=d1daa572",
-    "./js/admin.js":            "./js/admin.js?v=d1daa572",
-    "./js/config.js":           "./js/config.js?v=d1daa572",
-    "./js/firebase.js":         "./js/firebase.js?v=d1daa572",
-    "./js/flag-directory.js":   "./js/flag-directory.js?v=d1daa572",
-    "./js/history.js":          "./js/history.js?v=d1daa572",
-    "./js/listener-manager.js": "./js/listener-manager.js?v=d1daa572",
-    "./js/local-cache.js":      "./js/local-cache.js?v=d1daa572",
-    "./js/log.js":              "./js/log.js?v=d1daa572",
-    "./js/model.js":            "./js/model.js?v=d1daa572",
-    "./js/momentum.js":         "./js/momentum.js?v=d1daa572",
-    "./js/publish-pipeline.js": "./js/publish-pipeline.js?v=d1daa572",
-    "./js/read-budget.js":      "./js/read-budget.js?v=d1daa572",
-    "./js/render.js":           "./js/render.js?v=d1daa572",
-    "./js/url-state.js":        "./js/url-state.js?v=d1daa572"
+    "./js/access-view.js":      "./js/access-view.js?v=26ca8bba",
+    "./js/admin.js":            "./js/admin.js?v=26ca8bba",
+    "./js/config.js":           "./js/config.js?v=26ca8bba",
+    "./js/firebase.js":         "./js/firebase.js?v=26ca8bba",
+    "./js/flag-directory.js":   "./js/flag-directory.js?v=26ca8bba",
+    "./js/history.js":          "./js/history.js?v=26ca8bba",
+    "./js/listener-manager.js": "./js/listener-manager.js?v=26ca8bba",
+    "./js/local-cache.js":      "./js/local-cache.js?v=26ca8bba",
+    "./js/log.js":              "./js/log.js?v=26ca8bba",
+    "./js/model.js":            "./js/model.js?v=26ca8bba",
+    "./js/momentum.js":         "./js/momentum.js?v=26ca8bba",
+    "./js/publish-pipeline.js": "./js/publish-pipeline.js?v=26ca8bba",
+    "./js/read-budget.js":      "./js/read-budget.js?v=26ca8bba",
+    "./js/render.js":           "./js/render.js?v=26ca8bba",
+    "./js/url-state.js":        "./js/url-state.js?v=26ca8bba"
   }
 }
 </script>
-<script type="module" src="js/app.js?v=d1daa572" data-asset-version="d1daa572"></script>
-<script src="js/register-sw.js?v=d1daa572"></script>
+<script type="module" src="js/app.js?v=26ca8bba" data-asset-version="26ca8bba"></script>
+<script src="js/register-sw.js?v=26ca8bba"></script>
 </body>
 </html>
