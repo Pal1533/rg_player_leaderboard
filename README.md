@@ -3,9 +3,9 @@
 Live 1v1, 2v2, 3v3, and Wins standings for the Rocket Goal community. ATLAS
 writes match results; this site publishes them.
 
-**[Open the board](https://wiljdaws.github.io/rg_player_leaderboard/)**
-· [Clan Clash](https://wiljdaws.github.io/RG_Clan_Leaderboard/)
-· [Install ATLAS](https://github.com/wiljdaws/Tampermonkeys)
+**[Open the board](https://pal1533.github.io/rg_player_leaderboard/)**
+· [Clan Clash](https://pal1533.github.io/RG_Clan_Leaderboard/)
+· [Install ATLAS](https://github.com/Pal1533/Tampermonkeys)
 · [Discord](https://discord.gg/MDz7hsrh9m)
 
 Visitors read published JSON. They do not list Firestore. Admins sign in with
@@ -14,7 +14,7 @@ Google for Sync and Access (allow list, ban list, device bans).
 ## How it works
 
 1. ATLAS writes a player's row after a match.
-2. The publisher in [Tampermonkeys](https://github.com/wiljdaws/Tampermonkeys)
+2. The publisher in [Tampermonkeys](https://github.com/Pal1533/Tampermonkeys)
    writes JSON to the `data` branch.
 3. This site renders that JSON on GitHub Pages.
 
@@ -48,8 +48,8 @@ js/momentum.js          last-hour delta
 
 ## Related
 
-- [ATLAS HUD](https://github.com/wiljdaws/Tampermonkeys)
-- [Clan Clash Cup](https://github.com/wiljdaws/RG_Clan_Leaderboard)
+- [ATLAS HUD](https://github.com/Pal1533/Tampermonkeys)
+- [Clan Clash Cup](https://github.com/Pal1533/RG_Clan_Leaderboard)
 
 ## Community
 
@@ -59,5 +59,5 @@ This is a fan project. It is not affiliated with Rocket Goal.
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security policy](SECURITY.md)
 - [MIT License](LICENSE)
-- [Privacy](https://wiljdaws.github.io/rg_player_leaderboard/privacy.html)
-- [Terms](https://wiljdaws.github.io/rg_player_leaderboard/terms.html)
+- [Privacy](https://pal1533.github.io/rg_player_leaderboard/privacy.html)
+- [Terms](https://pal1533.github.io/rg_player_leaderboard/terms.html)

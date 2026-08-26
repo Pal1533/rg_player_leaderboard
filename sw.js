@@ -9,7 +9,7 @@
 // activate handler drops any cache whose name doesn't match CACHE_VERSION.
 
 const CACHE_VERSION = "rgLB-read-stats-v1";
-const SNAPSHOT_URL = "https://raw.githubusercontent.com/wiljdaws/rg_player_leaderboard/data/state/read-stats.json";
+const SNAPSHOT_URL = "https://raw.githubusercontent.com/Pal1533/rg_player_leaderboard/data/state/read-stats.json";
 
 self.addEventListener("install", (event) => {
   // Take over immediately so users don't have to reload twice to get the SW.

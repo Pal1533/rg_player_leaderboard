@@ -4,8 +4,8 @@ contact_links:
     url: https://discord.gg/MDz7hsrh9m
     about: Ask Pal or JesusDied4U, or talk through a bug before filing.
   - name: Live player board
-    url: https://wiljdaws.github.io/rg_player_leaderboard/
+    url: https://pal1533.github.io/rg_player_leaderboard/
     about: Public 1v1 / 2v2 / 3v3 / wins standings.
   - name: ATLAS HUD
-    url: https://github.com/wiljdaws/Tampermonkeys
+    url: https://github.com/Pal1533/Tampermonkeys
     about: The userscript that writes these standings.
