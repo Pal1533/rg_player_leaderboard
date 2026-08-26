@@ -13,7 +13,7 @@
 // alongside the published leaderboard JSON. Raw revalidates via ETag every
 // 5 min; jsDelivr's branch-alias cache held these files for hours.
 
-const CDN_BASE = "https://raw.githubusercontent.com/pal153/rg_player_leaderboard/data/state";
+const CDN_BASE = "https://raw.githubusercontent.com/Pal1533/rg_player_leaderboard/data/state";
 const PLAYLISTS = ["1v1", "2v2", "3v3", "wins"];
 const REFRESH_MS = 30_000;
 

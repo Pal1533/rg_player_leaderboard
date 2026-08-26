@@ -32,7 +32,7 @@ still counts.
 
 Private message Pal or JesusDied4U in the
 [Championship Discord](https://discord.gg/MDz7hsrh9m), or file a
-[private GitHub advisory](https://github.com/pal153/rg_player_leaderboard/security/advisories/new).
+[private GitHub advisory](https://github.com/Pal1533/rg_player_leaderboard/security/advisories/new).
 
 Don't make a scene in the channel if you can help it. We'll look into it,
 we'll keep your name out of it, and we'll be fair.

@@ -11,7 +11,7 @@ for a security problem.
 
 Report privately using one of these:
 
-1. [GitHub private vulnerability reporting](https://github.com/pal153/rg_player_leaderboard/security/advisories/new)
+1. [GitHub private vulnerability reporting](https://github.com/Pal1533/rg_player_leaderboard/security/advisories/new)
 2. A private Discord message to Pal or JesusDied4U in the
    [Championship Discord](https://discord.gg/MDz7hsrh9m)
 

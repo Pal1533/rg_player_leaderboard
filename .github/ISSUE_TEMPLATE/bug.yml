@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for the report. If this is a security problem, do not use this form — see [SECURITY.md](https://github.com/pal153/rg_player_leaderboard/blob/main/SECURITY.md).
+        Thanks for the report. If this is a security problem, do not use this form — see [SECURITY.md](https://github.com/Pal1533/rg_player_leaderboard/blob/main/SECURITY.md).
   - type: textarea
     id: what-happened
     attributes:
@@ -45,4 +45,4 @@ body:
     id: url
     attributes:
       label: Page URL
-      placeholder: https://pal153.github.io/rg_player_leaderboard/
+      placeholder: https://pal1533.github.io/rg_player_leaderboard/
