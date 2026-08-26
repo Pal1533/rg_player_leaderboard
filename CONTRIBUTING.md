@@ -45,8 +45,8 @@ pre-commit hook when assets change.
 
 ## Related repos
 
-- ATLAS HUD: [Pal1533/Tampermonkeys](https://github.com/Pal1533/Tampermonkeys)
-- Clan Clash site: [Pal1533/RG_Clan_Leaderboard](https://github.com/Pal1533/RG_Clan_Leaderboard)
+- ATLAS HUD: [pal153/Tampermonkeys](https://github.com/pal153/Tampermonkeys)
+- Clan Clash site: [pal153/RG_Clan_Leaderboard](https://github.com/pal153/RG_Clan_Leaderboard)
 
 ## Security
 

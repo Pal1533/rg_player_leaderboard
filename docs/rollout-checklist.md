@@ -119,7 +119,7 @@ on any push to `main` touching `firebase/scripts/**`. Options:
 
 **Option A (recommended):** Trigger it manually via GitHub Actions UI:
 
-- Go to https://github.com/Pal1533/Tampermonkeys/actions/workflows/deploy-rebuild-service.yml
+- Go to https://github.com/pal153/Tampermonkeys/actions/workflows/deploy-rebuild-service.yml
 - Click **Run workflow** → keep defaults (project: `rgleaderboard`) → **Run**
 
 **Option B:** Push any tiny commit under `firebase/scripts/`:
@@ -198,7 +198,7 @@ Commit + push. Pages redeploys. **`READ_SOURCE_DEFAULT` stays `"firestore"`
 
 ### 3.2 Dogfood
 
-Open `https://pal1533.github.io/rg_player_leaderboard/?readSource=static&persist=1`
+Open `https://pal153.github.io/rg_player_leaderboard/?readSource=static&persist=1`
 on your own browser. Devtools → Network tab should show:
 
 - Fetches to `cdn.rocketgoal.io/leaderboard-1v1.json` every 30 seconds

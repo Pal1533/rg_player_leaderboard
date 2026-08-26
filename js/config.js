@@ -38,7 +38,7 @@ export const READ_SOURCE_DEFAULT = "static";
 // for ~12h and purges get rate-limited at 1-min publish cadence, so we skip
 // the CDN and let clients revalidate against the origin via ETag.
 export const STATIC_JSON_URL_TEMPLATE =
-  "https://raw.githubusercontent.com/Pal1533/rg_player_leaderboard/data/leaderboard/{playlist}.json";
+  "https://raw.githubusercontent.com/pal153/rg_player_leaderboard/data/leaderboard/{playlist}.json";
 // Every 60s — CDN is refreshed every ~1 min now so anything longer just
 // stalls the tooltip's "X ago" text.
 export const STATIC_JSON_POLL_MS = 60_000;

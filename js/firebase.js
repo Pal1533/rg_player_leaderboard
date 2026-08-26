@@ -37,7 +37,7 @@ const APP_CHECK_URL = `https://www.gstatic.com/firebasejs/${SDK}/firebase-app-ch
 const APP_CHECK_SITE_KEY = "6LetM38tAAAAADvHq4SYd05r_DGK2AWJo8M3ZmJK";
 
 // Published by the Tampermonkeys publish workflow every 15 min.
-const READ_STATS_SNAPSHOT_URL = "https://raw.githubusercontent.com/Pal1533/rg_player_leaderboard/data/state/read-stats.json";
+const READ_STATS_SNAPSHOT_URL = "https://raw.githubusercontent.com/pal153/rg_player_leaderboard/data/state/read-stats.json";
 
 function playlistQuerySpec(playlist) {
   if (!isPlaylist(playlist)) throw new Error("Unknown playlist.");
@@ -56,7 +56,7 @@ function describeError(error) {
   // network error into a message that points at the fix.
   if (message.includes("ERR_BLOCKED_BY_CLIENT")
       || /Failed to fetch|NetworkError|network request failed/i.test(message)) {
-    return "A browser extension (ad blocker / privacy tool) is blocking Firebase. Whitelist pal1533.github.io or try an incognito window.";
+    return "A browser extension (ad blocker / privacy tool) is blocking Firebase. Whitelist pal153.github.io or try an incognito window.";
   }
   if (code.includes("permission-denied")) {
     return "Firebase denied this request. Sign in with an approved admin account.";
@@ -423,7 +423,7 @@ export async function createFirebaseGateway() {
         if (tokLen > 0) {
           log.info?.("appcheck", "token minted", { len: tokLen });
         } else {
-          log.warn?.("appcheck", "token fetch returned empty result — verify pal1533.github.io is in reCAPTCHA Domains and the site key matches");
+          log.warn?.("appcheck", "token fetch returned empty result — verify pal153.github.io is in reCAPTCHA Domains and the site key matches");
         }
       },
       (err) => log.warn?.("appcheck", "token fetch REJECTED — check reCAPTCHA Domains list, site key, and Firebase App Check secret key", err),
