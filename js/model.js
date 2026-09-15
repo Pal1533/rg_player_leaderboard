@@ -206,6 +206,7 @@ export function normalizePlayerDocument(raw, expectedPlaylist) {
       ...score,
       flag: sanitizePublicImageUrl(raw.flag),
       icons: normalizeIcons(raw.icons),
+      reviewFlagged: raw?.reviewFlagged === true,
       provenance: {
         kind: sourceUserId ? "ATLAS synced" : "Manual admin entry",
         version,

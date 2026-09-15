@@ -319,7 +319,7 @@ export function effectiveStreak(player, historyStore, now = Date.now()) {
 }
 
 
-function playerRow(player, index, playlist, historyStore, { admin, onInspect, onEdit, onDelete, onReassign }) {
+function playerRow(player, index, playlist, historyStore, { admin, onInspect, onEdit, onDelete, onReassign, onClearReview }) {
   const row = node("div", { className: `player-row${admin ? " admin" : ""}` });
   row.dataset.playlist = playlist;
   row.dataset.playerId = player.id;
@@ -364,6 +364,15 @@ function playerRow(player, index, playlist, historyStore, { admin, onInspect, on
   if (glow) nameEl.style.textShadow = glow;
   nameWrap.append(nameEl);
 
+  if (player.reviewFlagged) {
+    const badge = node("span", {
+      className: "review-badge",
+      text: "Under review",
+      title: "Writes paused: this account tripped the anti-cheat win cap. Scores frozen at last-known values until an admin clears the flag.",
+    });
+    nameWrap.append(badge);
+  }
+
   if (player.icons?.length) {
     const icons = node("div", { className: "p-icons" });
     for (const url of player.icons) {
@@ -384,13 +393,13 @@ function playerRow(player, index, playlist, historyStore, { admin, onInspect, on
   if (playlist === "tournament") {
     row.append(node("div", { className: "p-score", text: player.score.toLocaleString() }));
     row.append(node("div", { className: "p-score small", text: player.matches.toLocaleString() }));
-    if (admin) row.append(adminActions(player, onEdit, onDelete, onReassign));
+    if (admin) row.append(adminActions(player, onEdit, onDelete, onReassign, onClearReview));
   } else if (playlist === "wins") {
     row.append(node("div", { className: "p-score", text: player.wins.toLocaleString() }));
     row.append(node("div", { className: "p-score small", text: player.matches.toLocaleString() }));
     row.append(node("div", { className: "p-winrate", text: `${winRate(player)}%` }));
     row.append(streakCell(player, historyStore));
-    if (admin) row.append(adminActions(player, onEdit, onDelete, onReassign));
+    if (admin) row.append(adminActions(player, onEdit, onDelete, onReassign, onClearReview));
   } else {
     row.append(node("div", { className: "p-score", text: player.mmr.toLocaleString() }));
     row.append(streakCell(player, historyStore));
@@ -405,7 +414,7 @@ function playerRow(player, index, playlist, historyStore, { admin, onInspect, on
     }
     row.append(momentumWrap);
 
-    if (admin) row.append(adminActions(player, onEdit, onDelete, onReassign));
+    if (admin) row.append(adminActions(player, onEdit, onDelete, onReassign, onClearReview));
   }
   return row;
 }
@@ -424,12 +433,20 @@ function streakCell(player, historyStore) {
   return cell;
 }
 
-function adminActions(player, onEdit, onDelete, onReassign) {
+function adminActions(player, onEdit, onDelete, onReassign, onClearReview) {
   const wrap = node("div", { className: "row-actions" });
   const edit = node("button", { className: "edit", text: "Edit", type: "button" });
   edit.addEventListener("click", () => onEdit(player));
-  // "Reassign" is HUD-synced rows only — an unsourced admin-added row has
-  // no reinstall twin to migrate to.
+  if (onClearReview && player?.sourceUserId && player?.reviewFlagged) {
+    const clear = node("button", {
+      className: "clear-review",
+      text: "Clear review",
+      type: "button",
+      title: "Unblock this account's writes. Their HUD will resume publishing on the next match.",
+    });
+    clear.addEventListener("click", () => onClearReview(player));
+    wrap.append(clear);
+  }
   if (onReassign && player?.sourceUserId) {
     const reassign = node("button", {
       className: "reassign",
@@ -446,7 +463,7 @@ function adminActions(player, onEdit, onDelete, onReassign) {
   return wrap;
 }
 
-export function renderBoard({ playlist, rows, historyStore, admin, emptyMessage, onInspect, onEdit, onDelete, onReassign, metricLabel }) {
+export function renderBoard({ playlist, rows, historyStore, admin, emptyMessage, onInspect, onEdit, onDelete, onReassign, onClearReview, metricLabel }) {
   const body = $("boardBody");
   const head = $("boardHead");
   if (!body || !head) return;
@@ -495,7 +512,7 @@ export function renderBoard({ playlist, rows, historyStore, admin, emptyMessage,
 
   const fragment = document.createDocumentFragment();
   rows.forEach((player, index) => {
-    fragment.append(playerRow(player, index, playlist, historyStore, { admin, onInspect, onEdit, onDelete, onReassign }));
+    fragment.append(playerRow(player, index, playlist, historyStore, { admin, onInspect, onEdit, onDelete, onReassign, onClearReview }));
   });
   body.replaceChildren(fragment);
   applyMarquees(body);

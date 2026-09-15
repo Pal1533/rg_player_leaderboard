@@ -963,6 +963,29 @@ export async function createFirebaseGateway() {
       }
       return { oldUid, newUid, playlists: moved };
     }),
+    // Clear the anti-cheat review flag on a player's script_submissions
+    // and every ranked leaderboard doc. HUD 27.0+ reads the cleared flag
+    // on its next submission and unblocks local writes.
+    clearReviewFlag: (sourceUserId) => chargedWrite("clearReviewFlag", async () => {
+      const uid = String(sourceUserId || "").trim();
+      if (!uid) throw new Error("Missing sourceUserId to clear review.");
+      const now = serverTimestamp();
+      const patches = [
+        setDoc(doc(db, "script_submissions", uid), {
+          reviewFlagged: false,
+          reviewClearedAt: now,
+          lastWriteAt: now,
+        }, { merge: true }),
+      ];
+      for (const pl of ["1v1", "2v2", "3v3", "wins"]) {
+        patches.push(setDoc(doc(db, "leaderboard", `${uid}_${pl}`), {
+          reviewFlagged: false,
+          reviewClearedAt: now,
+          lastWriteAt: now,
+        }, { merge: true }));
+      }
+      await Promise.all(patches);
+    }),
     // Wipes every row from the tournament collection — used by the admin
     // "Clear all" button between tournaments. Also uses soft delete so the
     // CDN clears within one publish cycle.

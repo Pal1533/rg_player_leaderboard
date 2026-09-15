@@ -473,6 +473,27 @@ function render() {
         }
         return result;
       },
+      onClearReview: async (player) => {
+        if (!player?.sourceUserId) return;
+        const ok = await showConfirm({
+          title: "Clear review flag?",
+          message: `Unblock writes for ${player.name}. Their HUD will resume publishing on the next match.`,
+          confirmLabel: "Clear",
+          variant: "primary",
+        });
+        if (!ok) return;
+        // Optimistic clear so the badge and button disappear right away.
+        player.reviewFlagged = false;
+        render();
+        const result = await writes?.clearReviewFlag(player.sourceUserId);
+        if (result === false) {
+          log.error("write", "clearReviewFlag failed", new Error(`clearReviewFlag returned falsy for ${player.sourceUserId}`));
+          player.reviewFlagged = true;
+          render();
+        } else {
+          log.info("write", "clearReviewFlag completed", { sourceUserId: player.sourceUserId });
+        }
+      },
       onReassign: async (player) => {
         if (!player?.sourceUserId) return;
         const ok = await showConfirm({

@@ -87,6 +87,14 @@ export class AdminWriteService {
     );
   }
 
+  clearReviewFlag(sourceUserId) {
+    return this.run(
+      "Clearing review flag",
+      () => this.gateway.clearReviewFlag(sourceUserId),
+      { hint: PUBLISH_LAG_HINT },
+    );
+  }
+
   clearTournament() {
     return this.run(
       "Clearing tournament",

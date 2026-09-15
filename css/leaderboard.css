@@ -471,6 +471,16 @@ h1{
   color:#CFF3FF;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.35);
 }
 .row-actions .reassign:hover{background:rgba(56,189,248,.2)}
+.row-actions .clear-review{
+  color:#FEF3C7;background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.35);
+}
+.row-actions .clear-review:hover{background:rgba(234,179,8,.2)}
+.review-badge{
+  display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;
+  font:700 10px var(--display);letter-spacing:.1em;text-transform:uppercase;
+  color:#FEF3C7;background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.45);
+  vertical-align:middle;cursor:help;
+}
 
 .empty-state{padding:56px 24px;text-align:center;color:var(--ink-dim);font-weight:600;font-size:16px}
 .skeleton{padding:10px 22px 22px}
