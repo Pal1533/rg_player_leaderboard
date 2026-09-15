@@ -898,6 +898,71 @@ export async function createFirebaseGateway() {
           lastWriteAt: now,
         }, { merge: true })));
     }),
+    // Move a player's 1v1/2v2/3v3/wins rows from an old (reinstall-orphaned)
+    // sourceUserId to the newer Firebase uid that currently owns the same
+    // in-game player. Reinstalls / cache clears mint fresh anon uids;
+    // syncToRealLeaderboard in the HUD then refuses to publish because the
+    // rgPlayerId is already claimed. This unblocks the HUD by tombstoning
+    // the old rows and seeding the new ones with the last-known scores.
+    // Returns { oldUid, newUid, playlists: [...] } for the toast.
+    reassignPlayerToCurrentUid: (oldSourceUserId) => chargedWrite("reassignPlayerToCurrentUid", async () => {
+      const oldUid = String(oldSourceUserId || "").trim();
+      if (!oldUid) throw new Error("Missing sourceUserId to reassign.");
+
+      const priorSnap = await chargedGetDoc(
+        doc(db, "script_submissions", oldUid),
+        "reassignPlayer:prior",
+      );
+      const rgPlayerId = priorSnap.exists() ? String(priorSnap.data()?.rgPlayerId || "").trim() : "";
+      if (!rgPlayerId) {
+        throw new Error("Old submission has no rgPlayerId to match against.");
+      }
+
+      const twinsSnap = await chargedGetDocs(
+        query(collection(db, "script_submissions"), where("rgPlayerId", "==", rgPlayerId)),
+        "reassignPlayer:twins",
+      );
+      let newUid = "";
+      let newestAt = 0;
+      for (const entry of twinsSnap.docs) {
+        if (entry.id === oldUid) continue;
+        const data = entry.data() || {};
+        const rawStamp = data.lastWriteAt?.toMillis?.();
+        const fallback = Number.isFinite(Date.parse(data.lastUpdated || "")) ? Date.parse(data.lastUpdated) : 0;
+        const stamp = Number.isFinite(rawStamp) ? rawStamp : fallback;
+        if (stamp > newestAt) {
+          newestAt = stamp;
+          newUid = entry.id;
+        }
+      }
+      if (!newUid) {
+        throw new Error("No newer submission found for this player. Have them play a match on the current install first.");
+      }
+
+      const playlists = ["1v1", "2v2", "3v3", "wins"];
+      const now = serverTimestamp();
+      const moved = [];
+      for (const pl of playlists) {
+        const oldRef = doc(db, "leaderboard", `${oldUid}_${pl}`);
+        const oldDocSnap = await chargedGetDoc(oldRef, `reassignPlayer:read:${pl}`);
+        if (!oldDocSnap.exists()) continue;
+        const src = oldDocSnap.data() || {};
+        if (src.playlist === "tombstone") continue; // already migrated
+        const seed = { ...src, sourceUserId: newUid, lastWriteAt: now };
+        delete seed.deleted;
+        delete seed.deletedAt;
+        const newRef = doc(db, "leaderboard", `${newUid}_${pl}`);
+        await setDoc(newRef, seed, { merge: true });
+        await setDoc(oldRef, {
+          playlist: "tombstone",
+          deleted: true,
+          deletedAt: now,
+          lastWriteAt: now,
+        }, { merge: true });
+        moved.push(pl);
+      }
+      return { oldUid, newUid, playlists: moved };
+    }),
     // Wipes every row from the tournament collection — used by the admin
     // "Clear all" button between tournaments. Also uses soft delete so the
     // CDN clears within one publish cycle.

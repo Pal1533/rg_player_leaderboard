@@ -473,6 +473,31 @@ function render() {
         }
         return result;
       },
+      onReassign: async (player) => {
+        if (!player?.sourceUserId) return;
+        const ok = await showConfirm({
+          title: "Reassign player?",
+          message: `Move ${player.name}'s scores from the current Firebase uid onto whichever install is writing script_submissions today. Use this when a reinstall or cache clear stranded them on an old uid. This tombstones the current row across every playlist and copies the scores to the new uid.`,
+          confirmLabel: "Reassign",
+          variant: "primary",
+        });
+        if (!ok) return;
+        clearAdminRosterCache();
+        // Optimistic tombstone across all playlists — the CDN catches up
+        // within one publish cycle, same as the delete path.
+        for (const pl of ["1v1", "2v2", "3v3", "wins"]) {
+          stashRankedTombstone(pl, `${player.sourceUserId}_${pl}`);
+          clearPlaylistCache(pl);
+        }
+        state.rows = applyRankedTombstones(state.rows, player.playlist);
+        render();
+        const result = await writes?.reassignPlayerToCurrentUid(player.sourceUserId);
+        if (result && typeof result === "object" && result.newUid) {
+          log.info("write", "reassign completed", result);
+        } else if (result === false) {
+          log.error("write", "reassign failed", new Error(`reassign returned falsy for ${player.sourceUserId}`));
+        }
+      },
     });
     renderIconKey({
       rows: state.icons,

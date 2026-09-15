@@ -79,6 +79,14 @@ export class AdminWriteService {
     );
   }
 
+  reassignPlayerToCurrentUid(sourceUserId) {
+    return this.run(
+      "Reassigning player to current install",
+      () => this.gateway.reassignPlayerToCurrentUid(sourceUserId),
+      { hint: PUBLISH_LAG_HINT },
+    );
+  }
+
   clearTournament() {
     return this.run(
       "Clearing tournament",

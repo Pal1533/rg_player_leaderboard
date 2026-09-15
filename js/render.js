@@ -319,7 +319,7 @@ export function effectiveStreak(player, historyStore, now = Date.now()) {
 }
 
 
-function playerRow(player, index, playlist, historyStore, { admin, onInspect, onEdit, onDelete }) {
+function playerRow(player, index, playlist, historyStore, { admin, onInspect, onEdit, onDelete, onReassign }) {
   const row = node("div", { className: `player-row${admin ? " admin" : ""}` });
   row.dataset.playlist = playlist;
   row.dataset.playerId = player.id;
@@ -384,13 +384,13 @@ function playerRow(player, index, playlist, historyStore, { admin, onInspect, on
   if (playlist === "tournament") {
     row.append(node("div", { className: "p-score", text: player.score.toLocaleString() }));
     row.append(node("div", { className: "p-score small", text: player.matches.toLocaleString() }));
-    if (admin) row.append(adminActions(player, onEdit, onDelete));
+    if (admin) row.append(adminActions(player, onEdit, onDelete, onReassign));
   } else if (playlist === "wins") {
     row.append(node("div", { className: "p-score", text: player.wins.toLocaleString() }));
     row.append(node("div", { className: "p-score small", text: player.matches.toLocaleString() }));
     row.append(node("div", { className: "p-winrate", text: `${winRate(player)}%` }));
     row.append(streakCell(player, historyStore));
-    if (admin) row.append(adminActions(player, onEdit, onDelete));
+    if (admin) row.append(adminActions(player, onEdit, onDelete, onReassign));
   } else {
     row.append(node("div", { className: "p-score", text: player.mmr.toLocaleString() }));
     row.append(streakCell(player, historyStore));
@@ -405,7 +405,7 @@ function playerRow(player, index, playlist, historyStore, { admin, onInspect, on
     }
     row.append(momentumWrap);
 
-    if (admin) row.append(adminActions(player, onEdit, onDelete));
+    if (admin) row.append(adminActions(player, onEdit, onDelete, onReassign));
   }
   return row;
 }
@@ -424,17 +424,29 @@ function streakCell(player, historyStore) {
   return cell;
 }
 
-function adminActions(player, onEdit, onDelete) {
+function adminActions(player, onEdit, onDelete, onReassign) {
   const wrap = node("div", { className: "row-actions" });
   const edit = node("button", { className: "edit", text: "Edit", type: "button" });
   edit.addEventListener("click", () => onEdit(player));
+  // "Reassign" is HUD-synced rows only — an unsourced admin-added row has
+  // no reinstall twin to migrate to.
+  if (onReassign && player?.sourceUserId) {
+    const reassign = node("button", {
+      className: "reassign",
+      text: "Reassign",
+      type: "button",
+      title: "Move this row's scores onto the player's current Firebase uid. Use when a reinstall/cache-clear left them stuck on an old anon uid.",
+    });
+    reassign.addEventListener("click", () => onReassign(player));
+    wrap.append(reassign);
+  }
   const del = node("button", { className: "delete", text: "Remove", type: "button" });
   del.addEventListener("click", () => onDelete(player));
   wrap.append(edit, del);
   return wrap;
 }
 
-export function renderBoard({ playlist, rows, historyStore, admin, emptyMessage, onInspect, onEdit, onDelete, metricLabel }) {
+export function renderBoard({ playlist, rows, historyStore, admin, emptyMessage, onInspect, onEdit, onDelete, onReassign, metricLabel }) {
   const body = $("boardBody");
   const head = $("boardHead");
   if (!body || !head) return;
@@ -483,7 +495,7 @@ export function renderBoard({ playlist, rows, historyStore, admin, emptyMessage,
 
   const fragment = document.createDocumentFragment();
   rows.forEach((player, index) => {
-    fragment.append(playerRow(player, index, playlist, historyStore, { admin, onInspect, onEdit, onDelete }));
+    fragment.append(playerRow(player, index, playlist, historyStore, { admin, onInspect, onEdit, onDelete, onReassign }));
   });
   body.replaceChildren(fragment);
   applyMarquees(body);
