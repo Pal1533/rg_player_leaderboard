@@ -323,6 +323,7 @@ function paint(container, {
   error,
   formError,
   drafts,
+  flagged = [],
   onAllow,
   onBan,
   onRemoveAllow,
@@ -333,6 +334,9 @@ function paint(container, {
   onDraft,
   onQuery,
   onRefresh,
+  onClearReview,
+  onBanFlagged,
+  onBanFlaggedDevice,
 }) {
   container.replaceChildren();
 
@@ -419,6 +423,7 @@ function paint(container, {
           meter("No device", unpinned, "pin"),
           meter("Banned IDs", bannedRows.length, "ban"),
           meter("Banned devices", (devices || []).length, "device"),
+          meter("Under review", (flagged || []).length, "review"),
         ]),
       ]),
       el("div", { className: "access-toolbar" }, [
@@ -437,6 +442,11 @@ function paint(container, {
       error
         ? el("p", { className: "access-error", text: error, attrs: { role: "alert" } })
         : null,
+      flaggedSection(filterAccessEntries(flagged.map((row) => ({
+        ...row,
+        uid: row.sourceUserId,
+        name: row.displayName,
+      })), query), { onClearReview, onBanFlagged, onBanFlaggedDevice }),
       el("div", { className: "access-gates" }, [
         gate({
           tone: "allow",
@@ -524,6 +534,87 @@ function paint(container, {
       ]),
     ]),
   );
+}
+
+function flaggedSection(rows, { onClearReview, onBanFlagged, onBanFlaggedDevice }) {
+  return el("section", {
+    className: "access-flagged",
+    attrs: { "aria-label": "Players under review" },
+  }, [
+    el("div", { className: "access-flagged-head" }, [
+      el("span", { className: "access-kicker", text: "Anti-cheat" }),
+      el("h3", { className: "access-flagged-title", text: "Under review" }),
+      el("p", {
+        className: "access-flagged-hint",
+        text: rows.length
+          ? "Their HUD writes are frozen until you clear the flag or ban them."
+          : "No flagged players. This is where auto-flagged accounts show up so you can clear or ban them.",
+      }),
+    ]),
+    rows.length
+      ? el("ul", { className: "access-flagged-list" }, rows.map((row) =>
+        flaggedRow(row, { onClearReview, onBanFlagged, onBanFlaggedDevice })))
+      : null,
+  ]);
+}
+
+function flaggedRow(row, { onClearReview, onBanFlagged, onBanFlaggedDevice }) {
+  const flaggedAt = row.flaggedAt
+    ? new Date(row.flaggedAt).toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    })
+    : "Unknown time";
+  const playlists = Array.isArray(row.playlists) && row.playlists.length
+    ? row.playlists.join(", ")
+    : "no playlists";
+  return el("li", { className: "access-flagged-row" }, [
+    el("div", { className: "access-flagged-id" }, [
+      el("span", { className: "access-flagged-name", text: row.displayName || "Unknown player" }),
+      el("code", {
+        className: "access-row-uid",
+        text: shortUid(row.sourceUserId),
+        title: row.sourceUserId,
+      }),
+      el("span", { className: "access-flagged-meta", text: `${playlists} - ${flaggedAt}` }),
+      row.deviceId
+        ? el("code", {
+          className: "access-flagged-device",
+          text: `device ${shortUid(row.deviceId)}`,
+          title: row.deviceId,
+        })
+        : el("span", { className: "access-flagged-nodev", text: "no device on file" }),
+    ]),
+    el("div", { className: "access-row-actions" }, [
+      copyButton(
+        "Copy ids",
+        formatCopiedAllowIds(row.sourceUserId, row.deviceId || ""),
+        row.deviceId
+          ? `Copy Firebase ID and Device ID for ${row.sourceUserId}`
+          : `Copy Firebase ID for ${row.sourceUserId}`,
+      ),
+      el("button", {
+        className: "admin-primary",
+        type: "button",
+        text: "Clear review",
+        onClick: () => onClearReview?.(row.sourceUserId),
+      }),
+      el("button", {
+        className: "admin-danger",
+        type: "button",
+        text: "Ban uid",
+        onClick: () => onBanFlagged?.(row.sourceUserId),
+      }),
+      row.deviceId
+        ? el("button", {
+          className: "admin-danger",
+          type: "button",
+          text: "Ban device",
+          onClick: () => onBanFlaggedDevice?.(row.deviceId),
+        })
+        : null,
+    ]),
+  ]);
 }
 
 function meter(label, count, tone) {
@@ -667,9 +758,14 @@ export function createAccessView({ gateway, writes } = {}) {
   let drafts = { allowUid: "", allowDevice: "", banUid: "", banDevice: "" };
   let inflight = 0;
   let focusDevice = false;
+  let flagged = [];
 
   function snapshot() {
     const decorated = decorateAccessLists({ allowed, banned, names, pins });
+    const flaggedRows = flagged.map((row) => ({
+      ...row,
+      displayName: row.displayName || names.get(row.sourceUserId) || "",
+    }));
     return {
       ...decorated,
       devices,
@@ -678,6 +774,10 @@ export function createAccessView({ gateway, writes } = {}) {
       error,
       formError,
       drafts,
+      flagged: flaggedRows,
+      onClearReview: (uid) => act(() => writes?.clearReviewFlag(uid)),
+      onBanFlagged: (uid) => act(() => writes?.addBannedUserId(uid)),
+      onBanFlaggedDevice: (id) => act(() => writes?.addBannedDeviceId(id)),
       onAllow: (uid, deviceId, { replace = false } = {}) => {
         const parsed = parseAllowCredentials(uid, deviceId);
         if (parsed.error) {
@@ -790,12 +890,18 @@ export function createAccessView({ gateway, writes } = {}) {
         const cached = readCachedAccessNames();
         names = new Map([...cached, ...published]);
       }
-      const control = await gateway.loadAccessControl();
+      const [control, flaggedList] = await Promise.all([
+        gateway.loadAccessControl(),
+        typeof gateway.loadFlaggedPlayers === "function"
+          ? gateway.loadFlaggedPlayers().catch(() => [])
+          : Promise.resolve([]),
+      ]);
       if (token !== inflight || !active) return;
       allowed = control.allowedUserIds;
       banned = control.userIds;
       devices = control.deviceIds;
       pins = readAllowedDevicePins(control.allowedDevices);
+      flagged = Array.isArray(flaggedList) ? flaggedList : [];
       const current = uniqueAccessUids([...allowed, ...banned]);
       const newcomers = newAccessUids(current, knownUids);
       knownUids = current;

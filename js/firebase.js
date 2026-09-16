@@ -776,6 +776,63 @@ export async function createFirebaseGateway() {
       const snap = await chargedGetDoc(doc(db, "script_submissions", id), "accessNameLookup");
       return snap.exists() ? snap.data() : null;
     },
+    // Every flagged leaderboard doc, deduped by sourceUserId. Fans out
+    // a small script_submissions read per uid to grab the device pin so
+    // admins can ban uid+device from the same panel.
+    loadFlaggedPlayers: async () => {
+      const q = query(leaderboard, where("reviewFlagged", "==", true));
+      const snap = await chargedGetDocs(q, "flaggedPlayers");
+      const bySource = new Map();
+      const toMillis = (v) => {
+        if (!v) return 0;
+        if (typeof v.toMillis === "function") return v.toMillis();
+        if (typeof v === "number") return v;
+        const parsed = Date.parse(v);
+        return Number.isFinite(parsed) ? parsed : 0;
+      };
+      for (const d of snap.docs) {
+        const data = d.data() || {};
+        const uid = String(data.sourceUserId || "").trim();
+        if (!uid) continue;
+        const flaggedAt = toMillis(data.reviewFlaggedAt) || toMillis(data.lastWriteAt);
+        const prev = bySource.get(uid);
+        const playlists = new Set(prev?.playlists || []);
+        if (data.playlist) playlists.add(String(data.playlist));
+        bySource.set(uid, {
+          sourceUserId: uid,
+          displayName: prev?.displayName || String(data.displayName || data.name || "").trim(),
+          playlists,
+          flaggedAt: Math.max(prev?.flaggedAt || 0, flaggedAt),
+        });
+      }
+      const out = [];
+      for (const entry of bySource.values()) {
+        let deviceId = "";
+        let submissionName = "";
+        try {
+          const sub = await chargedGetDoc(
+            doc(db, "script_submissions", entry.sourceUserId),
+            "flaggedPlayerLookup",
+          );
+          if (sub.exists()) {
+            const sd = sub.data() || {};
+            deviceId = String(sd.deviceId || "").trim();
+            submissionName = String(sd.displayName || sd.nickname || sd.Nickname || "").trim();
+          }
+        } catch {
+          // Non-fatal — panel still renders without the device pin.
+        }
+        out.push({
+          sourceUserId: entry.sourceUserId,
+          displayName: entry.displayName || submissionName || "",
+          playlists: [...entry.playlists].sort(),
+          flaggedAt: entry.flaggedAt || 0,
+          deviceId,
+        });
+      }
+      out.sort((a, b) => (b.flaggedAt || 0) - (a.flaggedAt || 0));
+      return out;
+    },
     addAllowedUserId: (uid, deviceId, { replace = false } = {}) => chargedWrite("addAllowedUserId", async () => {
       if (isRejectableAccessUid(uid)) {
         throw new Error("That id is a test/spam uid. It stays banned.");

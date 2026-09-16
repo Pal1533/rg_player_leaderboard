@@ -368,7 +368,7 @@ function playerRow(player, index, playlist, historyStore, { admin, onInspect, on
     const badge = node("span", {
       className: "review-badge",
       text: "Under review",
-      title: "Writes paused: this account tripped the anti-cheat win cap. Scores frozen at last-known values until an admin clears the flag.",
+      title: "This player is under investigation for stat manipulation. Scores frozen until an admin clears the flag.",
     });
     nameWrap.append(badge);
   }
