@@ -1027,6 +1027,9 @@ export async function createFirebaseGateway() {
       const uid = String(sourceUserId || "").trim();
       if (!uid) throw new Error("Missing sourceUserId to clear review.");
       const now = serverTimestamp();
+      // audit metadata (reviewClearedAt) only on script_submissions — the
+      // leaderboard rule's hasOnly whitelist rejects it and traps every
+      // subsequent HUD write for the cleared user.
       const patches = [
         setDoc(doc(db, "script_submissions", uid), {
           reviewFlagged: false,
@@ -1037,7 +1040,6 @@ export async function createFirebaseGateway() {
       for (const pl of ["1v1", "2v2", "3v3", "wins"]) {
         patches.push(setDoc(doc(db, "leaderboard", `${uid}_${pl}`), {
           reviewFlagged: false,
-          reviewClearedAt: now,
           lastWriteAt: now,
         }, { merge: true }));
       }
